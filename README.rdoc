@@ -1,0 +1,26 @@
+= SC2Ranks API
+
+Ruby API based on httparty to fetch StarCraft 2 character information from www.sc2ranks.com
+
+== Requirements
+
+* httparty
+* crack (added by httparty)
+
+== Usage Examples
+
+    sc2ranks = SC2Ranks::API.new
+    
+    characters = sc2ranks.search("HuK")
+    characters.size  # => 8
+
+    huk = sc2ranks.find("HuK", 530)
+    huk.achievement_points  # => 240
+
+    huk = sc2ranks.find("HuK")
+    huk.character_code  # => 530
+
+    
+== Credits
+
+Big thanks to www.sc2ranks.com for their superb site, simple API and great support!

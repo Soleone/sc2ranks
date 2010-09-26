@@ -30,7 +30,7 @@ class ApiTest < Test::Unit::TestCase
       @api.search("akdjalksjdalksjdkajshfkjsdhfkjlahs")
     end
   end
-  
+
   def test_find_returns_character_instance
     character = @api.find("Soleone")
     assert_instance_of SC2Ranks::Character, character
@@ -42,5 +42,12 @@ class ApiTest < Test::Unit::TestCase
     assert_instance_of Time, character.updated_at
     assert_instance_of Fixnum, character.achievement_points
     assert_instance_of Hash, character.portrait
+  end
+  
+  def test_find_only_does_a_single_remote_call_when_character_code_is_provided
+    # TODO: add expectation to verify that only a single remote call was made
+    character = @api.find("Soleone", 380)
+    assert_equal "Soleone", character.name
+    assert_equal "us", character.region
   end
 end

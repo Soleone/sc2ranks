@@ -22,10 +22,12 @@ module SC2Ranks
       Characters.new(result.parsed_response)
     end
     
-    def find(name, region = REGIONS.first)
-      characters = search(name, region)
-      char = characters.first
-      base_character(name, char.bnet_id, region)
+    def find(name, code = nil, region = REGIONS.first)
+      if !code
+        characters = search(name, region)
+        code = characters.first.bnet_id
+      end
+      base_character(name, code, region)
     end
     
     def base_character(name, code, region = REGIONS.first)
