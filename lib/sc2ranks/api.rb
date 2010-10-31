@@ -1,58 +1,66 @@
 module SC2Ranks
   
   class API
-    class NoCharacterError < StandardError
-    end
-    
+    #HTTParty Setup
     include HTTParty
-    
-    REGIONS = %w[ us eu kr tw sea ru la ]
-    SEARCH_TYPES = [ :exact, :contains, :starts, :ends ]
-
-    self.class.send(:attr_accessor, :debug)
-    self.debug = false
-    
     base_uri "http://sc2ranks.com/api"
     default_params :appKey => APP_KEY
-    
-    def search(name, region = REGIONS.first, type = :exact, offset = nil)
-      url = "/search/#{type}/#{region}/#{name}"
-      url += "/#{offset}" if offset
-      result = get(url)
-      Characters.new(result.parsed_response)
+    format :json
+
+    #Define Errors
+    class NoKeyError < StandardError
     end
-    
-    def find(name, code = nil, region = REGIONS.first)
-      if !code
-        characters = search(name, region)
-        code = characters.first.bnet_id
-      end
-      base_character(name, code, region)
+
+    class NoCharacterError < StandardError
     end
-    
-    def base_character(name, code, region = REGIONS.first)
-      result = get("/base/char/#{region}/#{encoded_name(name, code)}")
-      Character.new(result.parsed_response)
+
+    class TooManyCharactersError < StandardError
     end
+
+    #Class Constants
+    REGIONS = %w[ us eu kr tw sea ru la ]
+    SEARCH_TYPES = [ :exact, :contains, :starts, :ends ]
     
-    
+    self.class.send(:attr_accessor, :debug)
+    self.debug = false
+
+    def get_character( name, code, region = REGIONS.first )
+      url = "/base/char/#{region}/#{encoded_name(name,code)}"
+      response = api_request(url)
+
+      Character.new(response.parsed_response)
+    end
+
+    def get_team_info( name, code, region = REGIONS.first )
+      url = "/base/char/#{region}/#{encoded_name(name,code)}"
+      response = api_request(url)
+
+      Character.new(response.parsed_response)
+    end
+
     private
-    
+
+    def api_request( url, url_params = {} )
+      request_url = "#{url}.json"
+      response = self.class.get( request_url, url_params )
+
+      if( self.class.debug )
+        puts request_url
+        puts response.inspect
+      end
+
+      raise NoKeyError if response['error'] == 'no_key'
+      raise NoCharacterError if response['error'] == 'no_character' or response['error'] == 'no_characters'
+      raise TooManyCharactersError if response['error'] == 'too_many_characters'
+
+      response
+    end
+
     def encoded_name(name, code)
       code_type = code.to_s.size == 3 ? '$' : '!'
       "#{name}#{code_type}#{code}"
     end
     
-    def get(path, format = :xml, options = {})
-      response = self.class.get(path, options)
-      if self.class.debug
-        puts path 
-        puts response.inspect
-      end
-      
-      raise NoCharacterError if response['error'] == "no_characters"
-      response
-    end
   end
   
 end
