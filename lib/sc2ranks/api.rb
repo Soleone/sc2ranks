@@ -32,7 +32,7 @@ module SC2Ranks
     end
 
     def get_team_info( name, code, region = REGIONS.first )
-      url = "/base/char/#{region}/#{encoded_name(name,code)}"
+      url = "/base/teams/#{region}/#{encoded_name(name,code)}"
       response = api_request(url)
 
       Character.new(response.parsed_response)

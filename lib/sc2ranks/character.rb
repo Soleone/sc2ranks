@@ -1,12 +1,6 @@
 module SC2Ranks
-  # "name"=>"Soleone", 
-  # "region"=>"us", 
-  # "bnet_id"=>297997,
-  # "updated_at"=>Fri Sep 24 06:02:40 UTC 2010,
-  # "character_code"=>380,
-  # "achievement_points"=>685,
-  # "portrait"=>{"icon_id"=>2, "row"=>4, "column"=>3}  
-  class Character < Struct.new(:name, :bnet_id, :character_code, :region, :updated_at, :achievement_points, :portrait)    
+
+  class Character < Struct.new(:name, :bnet_id, :character_code, :region, :updated_at, :achievement_points, :portrait, :teams)    
     def initialize(hash)
       members.each do |member|
         self[member] = hash[member.to_s]
@@ -24,4 +18,5 @@ module SC2Ranks
       super(@characters)
     end
   end
+
 end

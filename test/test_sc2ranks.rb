@@ -54,4 +54,23 @@ class TestSc2ranks < Test::Unit::TestCase
       end
     end
   end
+
+  context "A SC2Ranks::API base with teams request" do
+    setup do
+      @api = SC2Ranks::API.new
+      SC2Ranks::API.debug = true
+    end
+    
+    should "return team info" do
+      character = @api.get_team_info( 'coderjoe', 298901 )
+      assert_instance_of Array, character.teams
+      assert character.teams.size > 0
+    end
+
+    should "raise NoCharacterError when no characters are found" do
+      assert_raises NoCharacterError do
+        character = @api.get_team_info( 'asdfghjklasdfghjklasdfghjkl', 1234567891234567890 )
+      end
+    end
+  end
 end
