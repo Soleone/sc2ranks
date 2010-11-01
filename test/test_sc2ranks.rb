@@ -5,7 +5,7 @@ class TestSc2ranks < Test::Unit::TestCase
   context "A SC2Ranks::API base request by bnet_id" do
     setup do
       @api = SC2Ranks::API.new
-      SC2Ranks::API.debug = true
+      #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',298901)
     end
@@ -25,7 +25,7 @@ class TestSc2ranks < Test::Unit::TestCase
   context "A SC2Ranks::API base request by character code" do
     setup do
       @api = SC2Ranks::API.new
-      SC2Ranks::API.debug = true
+      #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',630)
     end
@@ -45,7 +45,7 @@ class TestSc2ranks < Test::Unit::TestCase
   context "A SC2Ranks::API base" do
     setup do
       @api = SC2Ranks::API.new
-      SC2Ranks::API.debug = true
+      #SC2Ranks::API.debug = true
     end
 
     should "raise \"NoCharacter\" when no such character found" do
@@ -58,7 +58,7 @@ class TestSc2ranks < Test::Unit::TestCase
   context "A SC2Ranks::API base with teams request" do
     setup do
       @api = SC2Ranks::API.new
-      SC2Ranks::API.debug = true
+      #SC2Ranks::API.debug = true
     end
     
     should "return team info" do
@@ -68,8 +68,48 @@ class TestSc2ranks < Test::Unit::TestCase
     end
 
     should "raise NoCharacterError when no characters are found" do
-      assert_raises NoCharacterError do
-        character = @api.get_team_info( 'asdfghjklasdfghjklasdfghjkl', 1234567891234567890 )
+      assert_raises SC2Ranks::API::NoCharacterError do
+        character = @api.get_team_info( 'asdfghjklasdf', 123456789 )
+      end
+    end
+  end
+
+  context "A SC2Ranks::API mass base request" do
+    setup do
+      @api = SC2Ranks::API.new
+      #SC2Ranks::API.debug = true
+
+      @characters = []
+      @characters << {:name => 'coderjoe', :bnet_id => 298901, :region=>'us'}
+      @characters << {:name => 'dayvie', :bnet_id => 715900,:region=>'us'}
+      @characters << {:name => 'HuK', :bnet_id => 388538,:region=>'us'}
+    end
+
+    should "return multiple characters at once" do
+      response = @api.get_mass_characters( @characters )
+
+      assert_instance_of SC2Ranks::Characters, response
+    end
+
+    should "raise no NoCharacterError if one of the characters doesn't exist" do
+      SC2Ranks::API.debug = true
+      @characters << {:name => 'asdfghjkasdfghjk', :bnet_id => 123456789, :region => 'us'}
+      SC2Ranks::API.debug = false
+
+      assert_raises SC2Ranks::API::NoCharacterError do
+        response = @api.get_mass_characters( @characters )
+      end
+    end
+
+    should "raise TooManyCharactersError when more than 100 characters are provided" do
+      too_many_chars = []
+      (1..102).each do |i|
+        too_many_chars << {:name => 'coderjoe', :bnet_id => 298901, :region => 'us' }
+      end
+
+      assert_raises SC2Ranks::API::TooManyCharactersError do 
+        SC2Ranks::API.debug = true
+        response = @api.get_mass_characters( too_many_chars )
       end
     end
   end

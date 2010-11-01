@@ -12,9 +12,17 @@ module SC2Ranks
     include Enumerable
     attr_reader :characters, :total
     
-    def initialize(hash)
-      @characters = hash['characters'].map{ |char| Character.new(char) }
-      @total = hash['total']
+    def initialize(arg)
+      if arg.is_a?(Array)
+        @total = arg.length
+        @characters = []
+        arg.each do |char|
+          @characters << Character.new(char)
+        end
+      elsif arg.is_a?(Hash)
+        @characters = arg['characters'].map{ |char| Character.new(char) }
+        @total = arg['total']
+      end
       super(@characters)
     end
   end
