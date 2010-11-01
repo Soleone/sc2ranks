@@ -4,8 +4,13 @@ module SC2Ranks
     #HTTParty Setup
     include HTTParty
     base_uri "http://sc2ranks.com/api"
-    default_params :appKey => APP_KEY
     format :json
+
+    attr_accessor :app_key
+
+    def initialize( app_key )
+      @app_key = app_key
+    end
 
     #Define Errors
     class NoKeyError < StandardError
@@ -74,7 +79,20 @@ module SC2Ranks
       end
     end
 
+    def set_param_defaults( params )
+      query_defaults = { 'appKey' => @app_key }
+
+      if( params.has_key?(:query) )
+        params[:query] = query_defaults.merge(params[:query])
+      else
+        params[:query] = query_defaults
+      end
+
+      params
+    end
+
     def post_request( url, post_params = {} )
+      post_params = set_param_defaults(post_params)
       response = self.class.post( url, post_params )
       raise_errors( response )
 
@@ -82,6 +100,7 @@ module SC2Ranks
     end
 
     def get_request( url, url_params = {} )
+      url_params = set_param_defaults(url_params)
       response = self.class.get( url, url_params )
       raise_errors( response )
 

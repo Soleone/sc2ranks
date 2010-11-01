@@ -1,10 +1,11 @@
 require 'helper'
 
 class TestSc2ranks < Test::Unit::TestCase
+  API_KEY = 'http://github.com/coderjoe/sc2ranks'
 
   context "A SC2Ranks::API base request by bnet_id" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',298901)
@@ -24,7 +25,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API base request by character code" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',630)
@@ -44,7 +45,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API base" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
     end
 
@@ -57,7 +58,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API base with teams request" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
     end
     
@@ -76,7 +77,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API mass base request" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @characters = []
@@ -92,9 +93,7 @@ class TestSc2ranks < Test::Unit::TestCase
     end
 
     should "raise no NoCharacterError if one of the characters doesn't exist" do
-      SC2Ranks::API.debug = true
       @characters << {:name => 'asdfghjkasdfghjk', :bnet_id => 123456789, :region => 'us'}
-      SC2Ranks::API.debug = false
 
       assert_raises SC2Ranks::API::NoCharacterError do
         response = @api.get_mass_characters( @characters )
@@ -104,11 +103,10 @@ class TestSc2ranks < Test::Unit::TestCase
     should "raise TooManyCharactersError when more than 100 characters are provided" do
       too_many_chars = []
       (1..102).each do |i|
-        too_many_chars << {:name => 'coderjoe', :bnet_id => 298901, :region => 'us' }
+        too_many_chars << {:name => "coderjoe#{i}", :bnet_id => 298901, :region => 'us' }
       end
 
       assert_raises SC2Ranks::API::TooManyCharactersError do 
-        SC2Ranks::API.debug = true
         response = @api.get_mass_characters( too_many_chars )
       end
     end
