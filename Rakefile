@@ -5,10 +5,10 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "sc2ranks"
-    gem.summary = %Q{A Ruby API for accessing sc2ranks.com}
-    gem.description = %Q{A Ruby API for accessing sc2ranks.com}
+    gem.summary = %Q{A Ruby gem for accessing sc2ranks.com}
+    gem.description = %Q{A Ruby gem for accessing sc2ranks.com}
     gem.email = "coderjoe@coderjoe.net"
-    gem.homepage = "http://github.com/coderjoe/sc2ranks"
+    gem.homepage = "http://github.com/Soleone/sc2ranks"
     gem.authors = ["Dennis Theisen","Joe Bauser"]
     gem.add_dependency "httparty", ">= 0.6.1"
     gem.add_development_dependency "shoulda", ">= 2.11.3"
