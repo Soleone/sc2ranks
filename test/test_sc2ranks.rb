@@ -112,6 +112,57 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "When performing a search" do
+  context "When performing an exact search" do
+    setup do
+      @api = SC2Ranks::API.new(API_KEY)
+      @characters = @api.search('shadow','us',:exact)
+    end
+
+    should "be of type SC2Rank::Characters" do
+      assert_instance_of SC2Ranks::Characters, @characters
+    end
+
+    should "return more than one result" do
+      assert @characters.length > 1
+    end
+
+    should "all be named have the same name" do
+      #Warning, this test is bad.
+      #This search will return a good many results.
+      #and there's no way we can check them all without being very mean to the sc2ranks server
+      #unless we want to rate limit... but then we are spending a lot of time waiting for tests.
+      #
+      #Ideas anybody?
+      @characters.each do | i |
+        assert i.name.downcase == 'shadow', "#{i.name} is not 'shadow'"
+      end
+    end
+
+    should "raise NoCharacterError when no characters found" do
+      assert_raises SC2Ranks::API::NoCharacterError do
+        @api.search('asdfghjklasdfghjkl')
+      end
+    end
+  end
+
+  context "When performing a find" do
+    setup do
+      @api = SC2Ranks::API.new(API_KEY)
+      @character = @api.find('coderjoe')
+    end
+
+    should "be return a Character instance" do
+      assert_instance_of SC2Ranks::Character, @character
+    end
+
+    should "find the correct character" do
+      assert_equal 'coderjoe', @character.name
+    end
+
+    should "raise NoCharacterError when no character is found" do
+      assert_raises SC2Ranks::API::NoCharacterError do
+        @api.find('asdfghjkasdfghjkl')
+      end
+    end
   end
 end

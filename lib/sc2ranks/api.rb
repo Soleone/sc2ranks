@@ -57,6 +57,24 @@ module SC2Ranks
       Characters.new(response.parsed_response)
     end
 
+    def search(name, region = REGIONS.first, type = :exact, offset = nil)
+      url = "/search/#{type.to_s}/#{region}/#{name}.json"
+      url += "/#{offset}" if offset
+
+      result = get_request(url)
+
+      Characters.new(result.parsed_response)
+    end
+
+    def find(name, code = nil, region = REGIONS.first)
+      if !code
+        characters = search(name, region, :exact)
+        code = characters.first.bnet_id
+      end
+
+      get_character(name,code,region)
+    end
+
     private
 
     def character_array_to_str_hash( array )
