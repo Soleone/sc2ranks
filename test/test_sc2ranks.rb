@@ -1,7 +1,7 @@
 require 'helper'
 
 class TestSc2ranks < Test::Unit::TestCase
-  API_KEY = 'http://github.com/coderjoe/sc2ranks'
+  API_KEY = 'sc2ranks_test_suite'
 
   context "A SC2Ranks::API base request by bnet_id" do
     setup do
@@ -92,18 +92,18 @@ class TestSc2ranks < Test::Unit::TestCase
       assert_instance_of SC2Ranks::Characters, response
     end
 
-    should "raise no NoCharacterError if one of the characters doesn't exist" do
+    should "raise no NoCharacterError if no characters are requested" do
       @characters << {:name => 'asdfghjkasdfghjk', :bnet_id => 123456789, :region => 'us'}
 
       assert_raises SC2Ranks::API::NoCharacterError do
-        response = @api.get_mass_characters( @characters )
+        response = @api.get_mass_characters( [] )
       end
     end
 
     should "raise TooManyCharactersError when more than 100 characters are provided" do
       too_many_chars = []
-      (1..102).each do |i|
-        too_many_chars << {:name => "coderjoe#{i}", :bnet_id => 298901, :region => 'us' }
+      (1..101).each do |i|
+        too_many_chars << {:name => "user#{i}", :bnet_id => i, :region => 'us' }
       end
 
       assert_raises SC2Ranks::API::TooManyCharactersError do 

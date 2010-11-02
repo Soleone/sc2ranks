@@ -76,6 +76,10 @@ module SC2Ranks
         raise NoKeyError if response['error'] == 'no_key'
         raise NoCharacterError if response['error'] == 'no_character' or response['error'] == 'no_characters'
         raise TooManyCharactersError if response['error'] == 'too_many_characters'
+      elsif response.response.is_a?(Net::HTTPBadRequest)
+        #sc2ranks doesn't follow their documentation right now.
+        #sending over 100 characters results in a HTTP 400 BadRequest error.
+        raise TooManyCharactersError
       end
     end
 
@@ -94,6 +98,13 @@ module SC2Ranks
     def post_request( url, post_params = {} )
       post_params = set_param_defaults(post_params)
       response = self.class.post( url, post_params )
+
+      if self.class.debug
+        puts "Url: #{url}"
+        puts "Params: #{post_params.inspect}"
+        puts "Response: #{response.inspect}"
+      end
+
       raise_errors( response )
 
       response
@@ -102,6 +113,13 @@ module SC2Ranks
     def get_request( url, url_params = {} )
       url_params = set_param_defaults(url_params)
       response = self.class.get( url, url_params )
+      
+      if self.class.debug
+        puts "Url: #{url}"
+        puts "Params: #{url_params.inspect}"
+        puts "Response: #{response.inspect}"
+      end
+
       raise_errors( response )
 
       response
