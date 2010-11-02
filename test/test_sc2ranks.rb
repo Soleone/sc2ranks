@@ -3,7 +3,7 @@ require 'helper'
 class TestSc2ranks < Test::Unit::TestCase
   API_KEY = 'sc2ranks_test_suite'
 
-  context "A SC2Ranks::API base request by bnet_id" do
+  context "A character base request by bnet_id" do
     setup do
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
@@ -23,7 +23,7 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API base request by character code" do
+  context "A character base request by character code" do
     setup do
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
@@ -56,7 +56,7 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API base with teams request" do
+  context "A character base with teams request" do
     setup do
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
@@ -75,7 +75,7 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API mass base request" do
+  context "A mass base request" do
     setup do
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
@@ -110,5 +110,8 @@ class TestSc2ranks < Test::Unit::TestCase
         response = @api.get_mass_characters( too_many_chars )
       end
     end
+  end
+
+  context "When performing a search" do
   end
 end
