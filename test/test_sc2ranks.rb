@@ -1,7 +1,7 @@
 require 'helper'
 
 class TestSc2ranks < Test::Unit::TestCase
-  API_KEY = 'sc2ranks_test_suite'
+  API_KEY = 'http://github.com/coderjoe/sc2ranks?gemtestsuite'
 
   context "A character base request by bnet_id" do
     setup do
