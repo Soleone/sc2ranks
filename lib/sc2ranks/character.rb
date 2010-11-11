@@ -1,8 +1,5 @@
 module SC2Ranks
 
-  # Character class
-  #
-  # This class wraps the various properties of returned character data
   class Character < Struct.new(:name, :bnet_id, :character_code, :region, :updated_at, :achievement_points, :portrait, :teams)    
     def initialize(hash)
       members.each do |member|
@@ -10,14 +7,11 @@ module SC2Ranks
       end
     end
   end
-  
-  # Characters class
+ 
+  # Wraps array like responses from the API
   #
-  # This class wraps array like responses from the API
-  # into an object which acts much like an array.
-  #
-  # @total Represents the total number of available characters in the request
-  # This may or may not be the same as the number of charactes present in the Characters class.
+  # If the total attribute doesn't match the array length
+  # then there are more characters to be fetched if required
   class Characters < DelegateClass(Array)
     include Enumerable
     attr_reader :characters, :total
