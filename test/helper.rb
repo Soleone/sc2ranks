@@ -1,6 +1,6 @@
 require 'rubygems'
 require 'test/unit'
-require 'shoulda'
+require 'contest'
 require 'vcr'
 
 VCR.config do |c|
