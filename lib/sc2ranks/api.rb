@@ -6,13 +6,13 @@ module SC2Ranks
     base_uri "http://sc2ranks.com/api"
     format :json
 
-    # The application key to be used when making SC2Ranks requests
+    # The application key is the domain on which the sc2ranks data will be used
     attr_accessor :app_key
 
     # Create a new instance of the SC2Ranks::API with the given applciation key
-    # You are required to provide a valid application key.
+    # Provide the domain you will be using the sc2ranks.com data on as your application key.
     #
-    # Go to http://sc2ranks.com/api for application key guidelines
+    # Go to http://sc2ranks.com/api for more api restrictions
     def initialize( app_key )
       @app_key = app_key
     end

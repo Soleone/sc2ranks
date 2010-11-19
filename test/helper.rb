@@ -1,6 +1,12 @@
 require 'rubygems'
 require 'test/unit'
 require 'shoulda'
+require 'vcr'
+
+VCR.config do |c|
+  c.cassette_library_dir = 'fixtures/vcr_cassettes'
+  c.http_stubbing_library = :fakeweb
+end
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 $LOAD_PATH.unshift(File.dirname(__FILE__))

@@ -1,14 +1,19 @@
 require 'helper'
 
 class TestSc2ranks < Test::Unit::TestCase
-  API_KEY = 'sc2ranks_test_suite'
+  API_KEY = 'http://github.com/coderjoe/sc2ranks?gemtestsuite'
 
   context "A character base request by bnet_id" do
     setup do
+      VCR.insert_cassette('character_request_by_bnet_id',:record => :new_episodes)
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',298901)
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "return a SC2Ranks::Character on base request" do
@@ -25,10 +30,16 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A character base request by character code" do
     setup do
+      VCR.insert_cassette('character_request_by_character_code', :record => :new_episodes)
+
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',630)
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "return a SC2Ranks::Character on base request" do
@@ -45,8 +56,14 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API base" do
     setup do
+      VCR.insert_cassette('base_requests', :record => :new_episodes )
+
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "raise \"NoCharacter\" when no such character found" do
@@ -58,8 +75,13 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A character base with teams request" do
     setup do
+      VCR.insert_cassette('base_with_teams',:record => :new_episodes)
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
     
     should "return team info" do
@@ -77,6 +99,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A mass base request" do
     setup do
+      VCR.insert_cassette('mass_base_request', :record => :new_episodes)
       @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
@@ -84,6 +107,10 @@ class TestSc2ranks < Test::Unit::TestCase
       @characters << {:name => 'coderjoe', :bnet_id => 298901, :region=>'us'}
       @characters << {:name => 'dayvie', :bnet_id => 715900,:region=>'us'}
       @characters << {:name => 'HuK', :bnet_id => 388538,:region=>'us'}
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "return multiple characters at once" do
@@ -114,8 +141,13 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "When performing an exact search" do
     setup do
+      VCR.insert_cassette('exact_search',:record => :new_episodes)
       @api = SC2Ranks::API.new(API_KEY)
       @characters = @api.search('shadow','us',:exact)
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "be of type SC2Rank::Characters" do
@@ -147,8 +179,14 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "When performing a find" do
     setup do
+      VCR.insert_cassette('find',:record => :new_episodes)
+
       @api = SC2Ranks::API.new(API_KEY)
       @character = @api.find('coderjoe')
+    end
+
+    teardown do
+      VCR.eject_cassette
     end
 
     should "be return a Character instance" do
