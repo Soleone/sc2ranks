@@ -6,29 +6,45 @@ module SC2Ranks
     base_uri "http://sc2ranks.com/api"
     format :json
 
+    # The application key to be used when making SC2Ranks requests
     attr_accessor :app_key
 
+    # Create a new instance of the SC2Ranks::API with the given applciation key
+    # You are required to provide a valid application key.
+    #
+    # Go to http://sc2ranks.com/api for application key guidelines
     def initialize( app_key )
       @app_key = app_key
     end
 
-    #Define Errors
+    # NoKeyError
+    # This error is raised when no APP_KEY is provided
     class NoKeyError < StandardError
     end
 
+    # NoCharacterError
+    # This error is raised when a requested character can not be found
+    # or when no characters are submitted for a get_mass_characters call
     class NoCharacterError < StandardError
     end
 
+    # TooManyCharactersError
+    # This error is raised when too many characters are requested durring
+    # a get_mass_characters call.
     class TooManyCharactersError < StandardError
     end
 
-    #Class Constants
+    #Valid regions on battle.net
     REGIONS = %w[ us eu kr tw sea ru la ]
+
+    #The search types available for use
     SEARCH_TYPES = [ :exact, :contains, :starts, :ends ]
 
     self.class.send(:attr_accessor, :debug)
     self.debug = false
 
+    # get_character
+    # Get the basic character info for a single character
     def get_character( name, code, region = REGIONS.first )
       url = "/base/char/#{region}/#{encoded_name(name,code)}.json"
       response = get_request(url)
@@ -36,6 +52,9 @@ module SC2Ranks
       Character.new(response.parsed_response)
     end
 
+    # get_team_info
+    # Get the basic character info for a single character and include team (league)
+    # information
     def get_team_info( name, code, region = REGIONS.first )
       url = "/base/teams/#{region}/#{encoded_name(name,code)}.json"
       response = get_request(url)
@@ -43,6 +62,14 @@ module SC2Ranks
       Character.new(response.parsed_response)
     end
 
+    # get_mass_characters
+    # Return many sets of base character info in one lump request
+    # character_array should be an array of character hashes in the form of
+    # 
+    #   { :name => 'coderjoe', :bnet_id => '1234567', :region => 'us' }
+    #
+    # The name, bnet_id, and region are all required parameters.
+    # The bnet_id is required, you can not use character_code
     def get_mass_characters( character_array )
       url = "/mass/base/char/"
 
@@ -57,6 +84,10 @@ module SC2Ranks
       Characters.new(response.parsed_response)
     end
 
+    # search
+    # Search for a character by name and region
+    # The response is a hash of character name and bnet_id
+    # Further information should be fetched using get_character
     def search(name, region = REGIONS.first, type = :exact, offset = nil)
       url = "/search/#{type.to_s}/#{region}/#{name}.json"
       url += "/#{offset}" if offset
@@ -66,6 +97,11 @@ module SC2Ranks
       Characters.new(result.parsed_response)
     end
 
+    # find
+    # If no code is provided, return the base character info for the first 
+    # character treturned by an exact search by name
+    #
+    # If the code is provided this call is identical to get_character
     def find(name, code = nil, region = REGIONS.first)
       if !code
         characters = search(name, region, :exact)
@@ -77,6 +113,15 @@ module SC2Ranks
 
     private
 
+    # character_array_to_str_hash
+    # The sc2ranks API requires posted arrays to have indexes
+    #   characters[0][name]=coderjoe&characters[0][bnet_id]=1234567&characters[0][region]=us
+    #
+    # Unfortunately HTTParty's parameter normalization omits the integer indexes.
+    #   characters[][name]=coderjoe&characters[][bnet_id]=1234567&characters[][region]=us
+    #   
+    # This is supposidly fine for Rails, but not ok for sc2ranks.com's API.
+    # This function converts an array of characters to a properly indexed hash
     def character_array_to_str_hash( array )
       query_hash = {}
 
@@ -113,6 +158,8 @@ module SC2Ranks
       params
     end
 
+    # post_response
+    # Wrapper around HTTParty post with library specific logic
     def post_request( url, post_params = {} )
       post_params = set_param_defaults(post_params)
       response = self.class.post( url, post_params )
@@ -128,6 +175,8 @@ module SC2Ranks
       response
     end
 
+    # post_response
+    # Wrapper around HTTParty post with library specific logic
     def get_request( url, url_params = {} )
       url_params = set_param_defaults(url_params)
       response = self.class.get( url, url_params )
@@ -143,6 +192,11 @@ module SC2Ranks
       response
     end
 
+    # encoded_name
+    # Turn a name/code combo into the correct URL name for use in the API
+    #
+    # names used with character_code should be $ delimited (i.e. name$123)
+    # names used with bnet_id should be ! delimited (i.e. name!1234567)
     def encoded_name(name, code)
       code_type = code.to_s.size == 3 ? '$' : '!'
       "#{name}#{code_type}#{code}"
