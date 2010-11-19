@@ -1,10 +1,11 @@
 require 'helper'
 
 class TestSc2ranks < Test::Unit::TestCase
+  API_KEY = 'sc2ranks_test_suite'
 
-  context "A SC2Ranks::API base request by bnet_id" do
+  context "A character base request by bnet_id" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',298901)
@@ -22,9 +23,9 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API base request by character code" do
+  context "A character base request by character code" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @character = @api.get_character('coderjoe',630)
@@ -44,7 +45,7 @@ class TestSc2ranks < Test::Unit::TestCase
 
   context "A SC2Ranks::API base" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
     end
 
@@ -55,9 +56,9 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API base with teams request" do
+  context "A character base with teams request" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
     end
     
@@ -74,9 +75,9 @@ class TestSc2ranks < Test::Unit::TestCase
     end
   end
 
-  context "A SC2Ranks::API mass base request" do
+  context "A mass base request" do
     setup do
-      @api = SC2Ranks::API.new
+      @api = SC2Ranks::API.new(API_KEY)
       #SC2Ranks::API.debug = true
 
       @characters = []
@@ -91,25 +92,76 @@ class TestSc2ranks < Test::Unit::TestCase
       assert_instance_of SC2Ranks::Characters, response
     end
 
-    should "raise no NoCharacterError if one of the characters doesn't exist" do
-      SC2Ranks::API.debug = true
+    should "raise no NoCharacterError if no characters are requested" do
       @characters << {:name => 'asdfghjkasdfghjk', :bnet_id => 123456789, :region => 'us'}
-      SC2Ranks::API.debug = false
 
       assert_raises SC2Ranks::API::NoCharacterError do
-        response = @api.get_mass_characters( @characters )
+        response = @api.get_mass_characters( [] )
       end
     end
 
     should "raise TooManyCharactersError when more than 100 characters are provided" do
       too_many_chars = []
-      (1..102).each do |i|
-        too_many_chars << {:name => 'coderjoe', :bnet_id => 298901, :region => 'us' }
+      (1..101).each do |i|
+        too_many_chars << {:name => "user#{i}", :bnet_id => i, :region => 'us' }
       end
 
       assert_raises SC2Ranks::API::TooManyCharactersError do 
-        SC2Ranks::API.debug = true
         response = @api.get_mass_characters( too_many_chars )
+      end
+    end
+  end
+
+  context "When performing an exact search" do
+    setup do
+      @api = SC2Ranks::API.new(API_KEY)
+      @characters = @api.search('shadow','us',:exact)
+    end
+
+    should "be of type SC2Rank::Characters" do
+      assert_instance_of SC2Ranks::Characters, @characters
+    end
+
+    should "return more than one result" do
+      assert @characters.length > 1
+    end
+
+    should "all be named have the same name" do
+      #Warning, this test is bad.
+      #This search will return a good many results.
+      #and there's no way we can check them all without being very mean to the sc2ranks server
+      #unless we want to rate limit... but then we are spending a lot of time waiting for tests.
+      #
+      #Ideas anybody?
+      @characters.each do | i |
+        assert i.name.downcase == 'shadow', "#{i.name} is not 'shadow'"
+      end
+    end
+
+    should "raise NoCharacterError when no characters found" do
+      assert_raises SC2Ranks::API::NoCharacterError do
+        @api.search('asdfghjklasdfghjkl')
+      end
+    end
+  end
+
+  context "When performing a find" do
+    setup do
+      @api = SC2Ranks::API.new(API_KEY)
+      @character = @api.find('coderjoe')
+    end
+
+    should "be return a Character instance" do
+      assert_instance_of SC2Ranks::Character, @character
+    end
+
+    should "find the correct character" do
+      assert_equal 'coderjoe', @character.name
+    end
+
+    should "raise NoCharacterError when no character is found" do
+      assert_raises SC2Ranks::API::NoCharacterError do
+        @api.find('asdfghjkasdfghjkl')
       end
     end
   end
