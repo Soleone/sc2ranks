@@ -5,4 +5,5 @@ require 'delegate'
 
 $:.unshift(File.dirname(__FILE__))
 require 'sc2ranks/sc2ranks'
+require 'sc2ranks/character'
 require 'sc2ranks/api'
